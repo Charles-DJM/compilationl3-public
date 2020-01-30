@@ -1,19 +1,122 @@
 Package sc;
 
+
 Helpers
 
 lettre = [['a' .. 'z'] + ['A' .. 'Z']];
 
+
 Tokens
 
+number = ['0' .. '9']+;
+int = 'entier';
+id = [['a' .. 'z'] + ['A' .. 'Z'] + '$' + '_'][['a' .. 'z'] + ['A' .. 'Z'] + '$' + '_' + ['0' .. '9']]*;
+plus = '+';
+minus = '-';
+mult = '*';
+div = '/';
+l_par = '(';
+r_par = ')';
+l_brac = '[';
+r_brac = ']';
+l_curbrac = '{';
+r_curbrac = '}';
+or = '|';
+and = '&';
+equals = '=';
+inf = '<';
+not = '!';
+if = 'si';
+then = 'alors';
+else = 'sinon';
+while = 'tantque';
+do = 'faire';
+return = 'retour';
+read = 'lire';
+write = 'ecrire';
+comma = ',';
+epsilon = '';
 espaces = (' ' | 13 | 10)+;
 commentaire= '#' [[0 .. 0xffff] - [10 + 13]]* (10 | 13 | 10 13);
+
 
 Ignored Tokens
 
 espaces, commentaire;
 
+
 Productions
 
-programme = optdecvar listedecfonc ;
+programme = listedecvaropt listedecfonc;
+listedecfonc =
+    {oneormore} decfonc listedecfonc |
+    {none} epsilon;
+decfonc = id l_par listedecvar r_part listedecvaropt instrbloc;
+
+listedecvaropt =
+    {oneormore} listedecvar |
+    {non} epsilon;
+listedecvar = decvar listedecvarbis;
+listedecvarbis =
+    {oneormore} decvar listedecvarbis |
+    {none} epsilon;
+decvar =
+    {integer} int id |
+    {integertable} int id l_brac number r_brac;
+var =
+    {var} id |
+    {table} id l_brac number r_brac;
+
+e =
+    {or} e or eone |
+    {eone} eone;
+eone =
+    {and} eone and etwo |
+    {etwo} etwo;
+etwo =
+    {equals} etwo equals ethree |
+    {inf} etwo inf ethree |
+    {ethree} ethree;
+ethree =
+    {plus} ethree plus efour |
+    {minus} ethree minus efour |
+    {efour} efour;
+efour =
+    {mult} efour mult efive |
+    {div} efour div efive |
+    {efive} efive;
+efive =
+    {not} not efive |
+    {parenthesis} l_par e r_par |
+    {number} number |
+    {call} call |
+    {var} var |
+    {read} read l_par r_par;
+listofe =
+    {one} e |
+    {morethanone} listofe comma, e;
+
+instr =
+    {ass} assinstr |
+    {if} ifinstr |
+    {while} whileinstr |
+    {call} callinstr |
+    {ret} retinstr |
+    {write} writeinstr |
+    {bloc} instrbloc;
+assinstr = var equals e;
+ifinstr = if e then instrbloc ifinstrbis;
+ifinstrbis =
+    {else} else instrbloc |
+    {noelse} epsilon;
+whileinstr = while e do instrbloc;
+callinstr = call;
+call = id l_par listofe r_par;
+retinstr = return e;
+writeinstr = write l_par e r_par;
+instrbloc = l_curbrac instrblocbis r_curbrac;
+instrblocbis =
+    {instr} instr instrblocbis |
+    {noinstr} epsilon;
+
 
