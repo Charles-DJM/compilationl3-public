@@ -35,6 +35,8 @@ return = 'retour';
 read = 'lire';
 write = 'ecrire';
 comma = ',';
+semicolon = ';';
+
 espaces = (' ' | 13 | 10)+;
 commentaire= '#' [[0 .. 0xffff] - [10 + 13]]* (10 | 13 | 10 13);
 
@@ -46,76 +48,89 @@ espaces, commentaire;
 
 Productions
 
-programme = listedecvaropt listedecfonc;
-listedecfonc =
-    {oneormore} decfonc listedecfonc |
-    {none} ;
-decfonc = id l_par listedecvar r_par listedecvaropt instrbloc;
 
-listedecvaropt =
-    {oneormore} listedecvar |
-    {none} ;
-listedecvar = decvar listedecvarbis;
-listedecvarbis =
-    {oneormore} decvar listedecvarbis |
-    {none} ;
-decvar =
-    {integer} int id |
-    {integertable} int id l_brac number r_brac;
+program =
+    {optvardeclist} optvardeclist foncdeclist |
+    {foncdeclist} foncdeclist;
+
+optvardeclist = vardeclist semicolon;
+
+foncdeclist =
+    {oneormore} foncdec foncdeclist |
+    {last} ;
+foncdec =
+    {withvardec} id paramlist optvardeclist instrbloc |
+    {novardec} id paramlist instrbloc;
+paramlist =
+    {withparam} l_par vardeclist r_par |
+    {withoutparam} l_par r_par;
+
+vardeclist =
+    {morethanone} vardec vardeclistbis;
+    {one} vardec;
+vardeclistbis =
+    {more} comma vardec vardeclistbis |
+    {last} comma vardec;
+vardec =
+    {int} int id |
+    {inttable} int id l_brac number r_brac;
 var =
     {var} id |
-    {table} id l_brac number r_brac;
+    {table} id l_brac exp r_brac;
 
-e =
-    {or} e or eone |
-    {eone} eone;
-eone =
-    {and} eone and etwo |
-    {etwo} etwo;
-etwo =
-    {equals} etwo equals ethree |
-    {inf} etwo inf ethree |
-    {ethree} ethree;
-ethree =
-    {plus} ethree plus efour |
-    {minus} ethree minus efour |
-    {efour} efour;
-efour =
-    {mult} efour mult efive |
-    {div} efour div efive |
-    {efive} efive;
-efive =
-    {not} not efive |
-    {parenthesis} l_par e r_par |
+exp =
+    {or} exp or exp1 |
+    {exp1} exp1;
+exp1 =
+    {and} exp1 and exp2 |
+    {exp2} exp2;
+exp2 =
+    {equals} exp2 equals exp3 |
+    {inf} exp2 inf exp3 |
+    {exp3} exp3;
+exp3 =
+    {plus} exp3 plus exp4 |
+    {minus} exp3 minus exp4 |
+    {exp4} exp4;
+exp4 =
+    {mult} exp4 mult exp5 |
+    {div} exp4 div exp5 |
+    {exp5} exp5;
+exp5 =
+    {not} not exp5 |
+    {parenthesis} l_par exp r_par |
     {number} number |
     {call} call |
     {var} var |
     {read} read l_par r_par;
-listofe =
-    {one} e |
-    {morethanone} listofe comma e;
+listofexp =
+    {morethanone} exp listofexpbis |
+    {none} ;
+listofexpbis =
+    {more} comma exp listofexpbis |
+    {last} ;
 
 instr =
-    {ass} assinstr |
-    {if} ifinstr |
-    {while} whileinstr |
-    {call} callinstr |
-    {ret} retinstr |
-    {write} writeinstr |
-    {bloc} instrbloc;
-assinstr = var equals e;
-ifinstr = if e then instrbloc ifinstrbis;
+    {assinstr} assinstr |
+    {ifinstr} ifinstr |
+    {whileinstr} whileinstr |
+    {callinstr} callinstr |
+    {retinstr} retinstr |
+    {writeinstr} writeinstr |
+    {emptyinstr} emptyinstr |
+    {instrbloc} instrbloc ;
+assinstr = var equals exp semicolon;
+ifinstr = if exp then instrbloc ifinstrbis;
 ifinstrbis =
     {else} else instrbloc |
     {noelse} ;
-whileinstr = while e do instrbloc;
-callinstr = call;
-call = id l_par listofe r_par;
-retinstr = return e;
-writeinstr = write l_par e r_par;
+whileinstr = while exp do instrbloc;
+callinstr = call semicolon;
+call = id l_par listofexp r_par;
+retinstr = return exp semicolon;
+writeinstr = write l_par exp r_par semicolon;
+emptyinstr = semicolon;
 instrbloc = l_curbrac instrblocbis r_curbrac;
 instrblocbis =
     {instr} instr instrblocbis |
     {noinstr} ;
-
-
