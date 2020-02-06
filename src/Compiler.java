@@ -15,17 +15,20 @@ public class Compiler
 	PushbackReader br = null;
 	String baseName = null;
 	try {
-	    if (0 < args.length) {
-		br = new PushbackReader(new FileReader(args[0]));
-		baseName = removeSuffix(args[0], ".l");
-	    }
-	    else{
-		System.out.println("il manque un argument");
-	    }
+		if (0 < args.length) {
+			br = new PushbackReader(new FileReader(args[0]));
+			baseName = removeSuffix(args[0], ".l");
+		} else {
+			//System.out.println("il manque un argument");
+			// Laisse écrire jusqu'à ce qu'il détecte une erreur lexicale
+			System.out.println("Enter your program : ");
+			br = new PushbackReader(new InputStreamReader(System.in), 1024);
+		}
 	}
 	catch (IOException e) {
 	    e.printStackTrace();
-	} 
+	}
+
 	try {
 	    // Create a Parser instance.
 	    Parser p = new Parser(new Lexer(br));
@@ -40,7 +43,7 @@ public class Compiler
 	    tree.apply(sc2sa);
 	    SaNode saRoot = sc2sa.getRoot();
 	    new Sa2Xml(saRoot, baseName);
-		    
+
 	    System.out.println("[TABLE SYMBOLES]");
 	    Ts table = new Sa2ts(saRoot).getTableGlobale();
 	    table.afficheTout(baseName);
@@ -59,10 +62,8 @@ public class Compiler
 
 	    System.out.println("[FLOW GRAPH SOLVE]");
 	    FgSolution fgSolution = new FgSolution(nasm, fg);
-	    fgSolution.affiche(baseName);*/
-	    
-
-	    
+	    fgSolution.affiche(baseName);
+	    */
 	}
 	catch(Exception e){
 	    System.out.println(e.getMessage());
@@ -77,5 +78,4 @@ public class Compiler
 	}
 	return s;
     }
-    
 }
