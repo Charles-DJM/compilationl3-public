@@ -6,11 +6,11 @@ Helpers
 lettre = [['a' .. 'z'] + ['A' .. 'Z']];
 
 
+
 Tokens
 
-number = ['0' .. '9']+;
-int = 'entier';
-id = (lettre | '$' | '_')(lettre | '$' | '_' | ['0' .. '9']+)*;
+espaces = (' ' | 13 | 10)+;
+commentaire= '#' [[0 .. 0xffff] - [10 + 13]]* (10 | 13 | 10 13);
 plus = '+';
 minus = '-';
 mult = '*';
@@ -26,6 +26,9 @@ and = '&';
 equals = '=';
 inf = '<';
 not = '!';
+comma = ',';
+semicolon = ';';
+int = 'entier';
 if = 'si';
 then = 'alors';
 else = 'sinon';
@@ -34,11 +37,9 @@ do = 'faire';
 return = 'retour';
 read = 'lire';
 write = 'ecrire';
-comma = ',';
-semicolon = ';';
+number = ['0' .. '9']+;
+id = (lettre | '$' | '_')(lettre | '$' | '_' | ['0' .. '9']+)*;
 
-espaces = (' ' | 13 | 10)+;
-commentaire= '#' [[0 .. 0xffff] - [10 + 13]]* (10 | 13 | 10 13);
 
 
 Ignored Tokens
@@ -46,8 +47,8 @@ Ignored Tokens
 espaces, commentaire;
 
 
-Productions
 
+Productions
 
 program =
     {optvardeclist} optvardeclist foncdeclist |
@@ -120,10 +121,10 @@ instr =
     {emptyinstr} emptyinstr |
     {instrbloc} instrbloc ;
 assinstr = var equals exp semicolon;
-ifinstr = if exp then instrbloc ifinstrbis;
-ifinstrbis =
-    {else} else instrbloc |
-    {noelse} ;
+ifinstr =
+    {ifthen} if exp then instrbloc |
+    {ifthenelse} if exp then instrbloc elseinstr;
+elseinstr = else instrbloc;
 whileinstr = while exp do instrbloc;
 callinstr = call semicolon;
 call = id l_par listofexp r_par;
