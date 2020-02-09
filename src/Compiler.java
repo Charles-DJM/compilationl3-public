@@ -2,7 +2,7 @@ import sc.parser.*;
 import sc.lexer.*;
 import sc.node.*;
 import java.io.*;
-//import sa.*;
+import sa.*;
 //import ts.*;
 //import c3a.*;
 //import nasm.*;
@@ -19,10 +19,12 @@ public class Compiler
 			br = new PushbackReader(new FileReader(args[0]));
 			baseName = removeSuffix(args[0], ".l");
 		} else {
-			//System.out.println("il manque un argument");
+			System.out.println("il manque un argument");
 			// Laisse écrire jusqu'à ce qu'il détecte une erreur lexicale
+			/*
 			System.out.println("Enter your program : ");
 			br = new PushbackReader(new InputStreamReader(System.in), 1024);
+		*/
 		}
 	}
 	catch (IOException e) {
