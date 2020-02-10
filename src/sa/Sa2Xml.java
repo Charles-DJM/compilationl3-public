@@ -17,7 +17,7 @@ public class Sa2Xml extends SaDepthFirstVisitor < Void > {
 			this.baseFileName = baseFileName;
 			this.fileName = baseFileName + ".sa";
 			this.out = new PrintStream(this.fileName);
-			this.out = System.out;
+			//this.out = System.out;
 			}
 
 			catch (IOException e) {

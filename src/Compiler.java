@@ -37,10 +37,10 @@ public class Compiler
 	    // Parse the input.
 	    Start tree = p.parse();
 	    
-	    System.out.println("\n[SC]\n");
+	    System.out.println("[SC]");
 	    tree.apply(new Sc2Xml(baseName));
 
-	    System.out.println("\n[SA]\n");
+	    System.out.println("[SA]");
 	    Sc2sa sc2sa = new Sc2sa();
 	    tree.apply(sc2sa);
 	    SaNode saRoot = sc2sa.getRoot();

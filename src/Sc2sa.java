@@ -103,12 +103,15 @@ public class Sc2sa extends DepthFirstAdapter
     // vardeclist = vardec
     public void caseAOneVardeclist(AOneVardeclist node) {
         node.getVardec().apply(this);
+        SaDec vardec = (SaDec) this.returnValue;
+
+        this.returnValue = new SaLDec(vardec, null);
     }
 
     // vardeclistbis = comma vardec vardeclistbis
     public void caseAMoreVardeclistbis(AMoreVardeclistbis node) {
         node.getVardec().apply(this);
-        SaDecVar vardec = (SaDecVar) this.returnValue;
+        SaDec vardec = (SaDec) this.returnValue;
 
         node.getVardeclistbis().apply(this);
         SaLDec vardeclistbis = (SaLDec) this.returnValue;
@@ -117,8 +120,11 @@ public class Sc2sa extends DepthFirstAdapter
     }
 
     // vardeclistbis = comma vardec
-    public void caseLastVardeclistbis(ALastVardeclistbis node) {
+    public void caseALastVardeclistbis(ALastVardeclistbis node) {
         node.getVardec().apply(this);
+        SaDec vardec = (SaDec) this.returnValue;
+
+        this.returnValue = new SaLDec(vardec, null);
     }
 
     // vardec = int id
@@ -296,7 +302,7 @@ public class Sc2sa extends DepthFirstAdapter
     }
 
     // exp5 = var
-    public void caseAVarEx5(AVarExp5 node) {
+    public void caseAVarExp5(AVarExp5 node) {
         node.getVar().apply(this);
         SaVar op1 = (SaVar) this.returnValue;
 
@@ -430,6 +436,37 @@ public class Sc2sa extends DepthFirstAdapter
         SaInst instr = (SaInst) this.returnValue;
 
         this.returnValue = new SaInstTantQue(exp, instr);
+    }
+
+    // callinstr = call semicolon
+    public void caseACallinstr(ACallinstr node) {
+        node.getCall().apply(this);
+    }
+
+    // call = id l_par listofexp r_par
+    public void caseACall(ACall node) {
+        String id = node.getId().getText();
+
+        node.getListofexp().apply(this);
+        SaLExp listofexp = (SaLExp) this.returnValue;
+
+        this.returnValue = new SaAppel(id, listofexp);
+    }
+
+    // retinstr = return exp semicolon
+    public void caseARetinstr(ARetinstr node) {
+        node.getExp().apply(this);
+        SaExp exp = (SaExp) this.returnValue;
+
+        this.returnValue = new SaInstRetour(exp);
+    }
+
+    // writeinstr = write l_par exp r_par semicolon
+    public void caseAWriteinstr(AWriteinstr node) {
+        node.getExp().apply(this);
+        SaExp exp = (SaExp) this.returnValue;
+
+        this.returnValue = new SaInstEcriture(exp);
     }
 
     // emptyinstr = semicolon
