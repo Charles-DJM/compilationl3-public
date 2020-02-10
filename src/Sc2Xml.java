@@ -11,23 +11,22 @@ class Sc2Xml extends DepthFirstAdapter
     
     public Sc2Xml(String baseFileName)
     {
+		if (baseFileName == null){
+			this.out = System.out;
 
-	if (baseFileName == null){
-	    this.out = System.out;
-	    
-	}
-	else{
-	    try {
-		this.baseFileName = baseFileName;
-		this.fileName = baseFileName + ".sc";
-		this.out = new PrintStream(this.fileName);
-		this.out = System.out;
-	    }
-	    
-	    catch (IOException e) {
-		System.err.println("Error: " + e.getMessage());
-	    }
-	}
+		}
+		else{
+			try {
+			this.baseFileName = baseFileName;
+			this.fileName = baseFileName + ".sc";
+			this.out = new PrintStream(this.fileName);
+			this.out = System.out;
+			}
+
+			catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+			}
+		}
     }
     
     public void defaultIn(@SuppressWarnings("unused") Node node)

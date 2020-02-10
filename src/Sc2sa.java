@@ -19,6 +19,7 @@ public class Sc2sa extends DepthFirstAdapter
         this.returnValue = new SaProg(optvardeclist, foncdeclist);
     }
 
+
     // program = foncdeclist
     public void caseAFoncdeclistProgram(AFoncdeclistProgram node) {
         node.getFoncdeclist().apply(this);
@@ -26,6 +27,7 @@ public class Sc2sa extends DepthFirstAdapter
 
         this.returnValue = new SaProg(null, foncdeclist);
     }
+
 
     // optvardeclist = vardeclist semicolon
     public void caseAOptvardeclist(AOptvardeclist node) {
@@ -50,8 +52,7 @@ public class Sc2sa extends DepthFirstAdapter
 
     // foncdec = id paramlist optvardeclist instrbloc
     public void caseAWithvardecFoncdec(AWithvardecFoncdec node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
         node.getParamlist().apply(this);
         SaLDec paramlist = (SaLDec) this.returnValue;
@@ -67,8 +68,7 @@ public class Sc2sa extends DepthFirstAdapter
 
     // foncdec = id paramlist instrbloc
     public void caseANovardecFoncdec(ANovardecFoncdec node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
         node.getParamlist().apply(this);
         SaLDec paramlist = (SaLDec) this.returnValue;
@@ -123,35 +123,30 @@ public class Sc2sa extends DepthFirstAdapter
 
     // vardec = int id
     public void caseAIntVardec(AIntVardec node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
         this.returnValue = new SaDecVar(id);
     }
 
     // vardec = int id l_brac number r_brac
     public void caseAInttableVardec(AInttableVardec node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
-        node.getNumber().apply(this);
-        int number = Integer.parseInt(this.returnValue.toString());
+        int number = Integer.parseInt(node.getNumber().getText());
 
         this.returnValue = new SaDecTab(id, number);
     }
 
     // var = id
     public void caseAVarVar(AVarVar node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
         this.returnValue = new SaVarSimple(id);
     }
 
     // var = id l_brac exp r_brac
     public void caseATableVar(ATableVar node) {
-        node.getId().apply(this);
-        String id = this.returnValue.toString();
+        String id = node.getId().getText();
 
         node.getExp().apply(this);
         SaExp exp = (SaExp) this.returnValue;
@@ -287,8 +282,7 @@ public class Sc2sa extends DepthFirstAdapter
 
     // exp5 = number
     public void caseANumberExp5(ANumberExp5 node) {
-        node.getNumber().apply(this);
-        int number = Integer.parseInt(this.returnValue.toString());;
+        int number = Integer.parseInt(node.getNumber().getText());
 
         this.returnValue = new SaExpInt(number);
     }
@@ -446,6 +440,9 @@ public class Sc2sa extends DepthFirstAdapter
     // instrbloc = l_curbrac instrblocbis r_curbrac
     public void caseAInstrbloc(AInstrbloc node) {
         node.getInstrblocbis().apply(this);
+        SaLInst instrblocbis = (SaLInst) this.returnValue;
+
+        this.returnValue = new SaInstBloc(instrblocbis);
     }
 
     // instrblocbis = instr instrblocbis
