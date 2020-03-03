@@ -3,6 +3,7 @@ import sc.lexer.*;
 import sc.node.*;
 import java.io.*;
 import sa.*;
+import ts.Ts;
 //import ts.*;
 //import c3a.*;
 //import nasm.*;
@@ -46,11 +47,11 @@ public class Compiler
 	    SaNode saRoot = sc2sa.getRoot();
 	    new Sa2Xml(saRoot, baseName);
 
-	    /*
 	    System.out.println("[TABLE SYMBOLES]");
-	    Ts table = new Sa2ts(saRoot).getTableGlobale();
+	    Ts table = new Sa2ts(saRoot).getTable();
 	    table.afficheTout(baseName);
 
+		/*
 	    System.out.println("[C3A]");
 	    C3a c3a = new Sa2c3a(saRoot, table).getC3a();
 	    c3a.affiche(baseName);
