@@ -147,6 +147,6 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
         return null;
     }
 
-    public Ts getTable() { return table; }
+    public Ts getTableGlobale() { return table; }
 
 }
