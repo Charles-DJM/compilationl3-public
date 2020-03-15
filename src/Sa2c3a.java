@@ -110,7 +110,7 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
 
     //TODO
     public C3aOperand visit(SaExpAppel node) {
-        return null;
+        return c3a.newTemp();
     }
 
     // r = a1 / a2
@@ -160,13 +160,14 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
         return comparison;
     }
 
-    public C3aOperand visit(SaExpInt node) {
-        return new C3aConstant(node.getVal());
-    }
+    // int DONE
+    public C3aOperand visit(SaExpInt node) { return new C3aConstant(node.getVal()); }
 
-    //TODO
     public C3aOperand visit(SaExpLire node) {
-        return null;
+        C3aTemp temp = c3a.newTemp();
+        c3a.ajouteInst(new C3aInstRead(temp, ""));
+
+        return temp;
     }
 
     // r = a1 * a2
@@ -184,7 +185,7 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
 
     //TODO
     public C3aOperand visit(SaExpNot node) {
-        return null;
+        return c3a.newTemp();
     }
 
     // r = a1 || a2
@@ -218,10 +219,8 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
         return r;
     }
 
-    //TODO
-    public C3aOperand visit(SaExpVar node) {
-        return null;
-    }
+    // var TODO
+    public C3aOperand visit(SaExpVar node) { return new C3aVar(table.getVar(node.getVar().toString()), null);}
 
     // Instructions
 
@@ -256,11 +255,49 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
         return null;
     }
 
+    // if E then LI1 else L12
     public C3aOperand visit(SaInstSi node) {
+        // Get expression result
+        C3aOperand expResult = visit(node.getTest());
+        // Create two labels
+        C3aLabel faux = c3a.newAutoLabel();
+        C3aLabel suite = c3a.newAutoLabel();
+
+        // If expResult = 0 jump to faux
+        c3a.ajouteInst(new C3aInstJumpIfEqual(expResult, c3a.False, faux, ""));
+        // then
+        //visit(node.getAlors());
+        // jump to suite
+        c3a.ajouteInst(new C3aInstJump(suite, ""));
+        // faux:
+        c3a.addLabelToNextInst(faux);
+        // else
+        //visit(node.getSinon());
+        // suite:
+        c3a.addLabelToNextInst(suite);
+
         return null;
     }
 
+    // while E do LI
     public C3aOperand visit(SaInstTantQue node) {
+        // Create two labels
+        C3aLabel test = c3a.newAutoLabel();
+        C3aLabel suite = c3a.newAutoLabel();
+
+        // test:
+        c3a.addLabelToNextInst(test);
+        // Get expression result
+        C3aOperand expResult = visit(node.getTest());
+        // if expResult = 0 jump to suite
+        c3a.ajouteInst(new C3aInstJumpIfEqual(expResult, c3a.False, suite, ""));
+        // Loop code
+        //visit(node.getFaire());
+        // jump to test
+        c3a.ajouteInst(new C3aInstJump(test, ""));
+        // suite:
+        c3a.addLabelToNextInst(suite);
+
         return null;
     }
 
@@ -277,7 +314,13 @@ public class Sa2c3a extends SaDepthFirstVisitor <C3aOperand> {
     }
 
     public C3aOperand visit(SaLExp node) {
-        return null;
+        C3aOperand temp = visit(node.getTete());
+
+        if(node.getQueue() != null) {
+            visit(node.getQueue());
+        }
+
+        return temp;
     }
 
     public C3aOperand visit(SaLInst node) {

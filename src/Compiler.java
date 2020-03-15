@@ -1,5 +1,6 @@
 import c3a.C3a;
 import sa.Sa2Xml;
+import sa.SaEval;
 import sa.SaNode;
 import sc.parser.*;
 import sc.lexer.*;
@@ -51,9 +52,11 @@ public class Compiler
 	    Ts table = new Sa2ts(saRoot).getTableGlobale();
 	    table.afficheTout(baseName);
 
-	    System.out.println("[C3A]");
+	    new SaEval(saRoot, table);
+
+	    /*System.out.println("[C3A]");
 	    C3a c3a = new Sa2c3a(saRoot, table).getC3a();
-	    c3a.affiche(baseName);
+	    c3a.affiche(baseName);*/
 
 	    /*System.out.println("[NASM]");
 	    Nasm nasm = new C3a2nasm(c3a, table).getNasm();
