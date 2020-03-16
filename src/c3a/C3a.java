@@ -72,8 +72,7 @@ public class C3a{
 	}
     	Iterator<C3aInst> iter = this.listeInst.iterator();
     	while(iter.hasNext()){
-    	    //out.println(iter.next());
-			System.out.println(iter.next());
+    	    out.println(iter.next());
     	}
     }
 	
