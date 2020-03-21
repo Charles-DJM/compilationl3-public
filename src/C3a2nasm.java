@@ -2,7 +2,7 @@ import c3a.*;
 import nasm.*;
 import ts.Ts;
 
-public class C3a2nasm implements C3aVisitor {
+public class C3a2nasm implements C3aVisitor <NasmOperand> {
     private Nasm nasm;
     private C3a c3a;
     private Ts table;

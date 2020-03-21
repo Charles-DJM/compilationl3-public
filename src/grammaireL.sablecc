@@ -122,10 +122,10 @@ instr =
     {instrbloc} instrbloc ;
 assinstr = var equals exp semicolon;
 ifinstr =
-    {ifthen} if exp then instr |
-    {ifthenelse} if exp then instr elseinstr;
-elseinstr = else instr;
-whileinstr = while exp do instr;
+    {ifthen} if exp then instrbloc |
+    {ifthenelse} if exp then instrbloc elseinstr;
+elseinstr = else instrbloc;
+whileinstr = while exp do instrbloc;
 callinstr = call semicolon;
 call = id l_par listofexp r_par;
 retinstr = return exp semicolon;
