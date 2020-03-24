@@ -10,6 +10,7 @@ public interface NasmVisitor <T> {
     public T visit(NasmMul inst);
     public T visit(NasmOr inst);
     public T visit(NasmCmp inst);
+    public T visit(NasmInt inst);
     public T visit(NasmInst inst);
     public T visit(NasmJge inst);
     public T visit(NasmJl inst);

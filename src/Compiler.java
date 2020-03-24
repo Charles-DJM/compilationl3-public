@@ -1,4 +1,4 @@
-import fg.Fg;
+import fg.*;
 import sc.parser.*;
 import sc.lexer.*;
 import sc.node.*;
@@ -72,14 +72,14 @@ public class Compiler
 
 	    System.out.print("[BUILD FG] ");
 	    Fg fg = new Fg(nasm);
-	    System.out.print("[PRINT FG] \n");
+	    System.out.print("[PRINT FG] ");
 	    fg.affiche(baseName);
+		//fg.graph.show(System.out);
+	    /*
 
-	  /*
 	    System.out.println("[SOLVE FG]");
 	    FgSolution fgSolution = new FgSolution(nasm, fg);
-	    fgSolution.affiche(baseName);
-      */
+	    fgSolution.affiche(baseName);*/
 	}
 	catch(Exception e){
 	    System.out.println(e.getMessage());
