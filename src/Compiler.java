@@ -75,11 +75,10 @@ public class Compiler
 	    System.out.print("[PRINT FG] ");
 	    fg.affiche(baseName);
 		//fg.graph.show(System.out);
-	    /*
 
 	    System.out.println("[SOLVE FG]");
 	    FgSolution fgSolution = new FgSolution(nasm, fg);
-	    fgSolution.affiche(baseName);*/
+	    fgSolution.affiche(null);
 	}
 	catch(Exception e){
 	    System.out.println(e.getMessage());

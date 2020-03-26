@@ -5,8 +5,8 @@ import util.intset.*;
 import java.io.*;
 import java.util.*;
 
-public class FgSolution implements NasmVisitor <Void> {
-    int iterNum = 0;
+public class FgSolution {
+    int iterNum;
     public Nasm nasm;
     Fg fg;
     public Map< NasmInst, IntSet> use;
@@ -21,7 +21,185 @@ public class FgSolution implements NasmVisitor <Void> {
 		this.def = new HashMap< NasmInst, IntSet>();
 		this.in =  new HashMap< NasmInst, IntSet>();
 		this.out = new HashMap< NasmInst, IntSet>();
+
+		// Pour chaque instruction nasm, on initialise les ensembles use et def
+		for(NasmInst nasmInst : nasm.listeInst) {
+			createUseDefSet(nasmInst);
+		}
+
+		iterNum = -1;
+		createInOutSet();
     }
+
+    private void createUseDefSet(NasmInst nasmInst) {
+		// On initialize les IntSet
+		IntSet defSet = new IntSet(10);
+		IntSet useSet = new IntSet(10);
+
+		// Si l'instruction possède un registre source
+		if(nasmInst.source != null) {
+			// Si le registre source est utilisé et que c'est un registre général
+			if (nasmInst.srcUse && nasmInst.source.isGeneralRegister()) {
+				NasmRegister source = (NasmRegister) nasmInst.source;
+				// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
+				if(source.color == Nasm.REG_UNK) {
+					useSet.add(source.val + 4);
+				}
+				else {
+					useSet.add(source.val);
+				}
+			}
+
+			// Si le registre source est une adresse
+			if (nasmInst.source.getClass().equals(NasmAddress.class)) {
+				NasmAddress address = (NasmAddress) nasmInst.source;
+
+				// Si la base est un registre général
+				if (address.base.isGeneralRegister()) {
+					// Alors il est utilisé
+					NasmRegister source = (NasmRegister) address.base;
+					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
+					if(source.color == Nasm.REG_UNK) {
+						useSet.add(source.val + 4);
+					}
+					else {
+						useSet.add(source.val);
+					}
+				}
+
+				// Si l'offset est un registre général
+				if (address.offset.isGeneralRegister()) {
+					// Alors il est utilisé
+					NasmRegister source = (NasmRegister) address.offset;
+					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
+					if(source.color == Nasm.REG_UNK) {
+						useSet.add(source.val + 4);
+					}
+					else {
+						useSet.add(source.val);
+					}
+				}
+			}
+		}
+
+		// Si l'instruction possède un registre destination
+		if(nasmInst.destination != null) {
+			// Si le registre destination est utilisé
+			if (nasmInst.destUse) {
+				// Si le registre destination est un registre général
+				if (nasmInst.destination.isGeneralRegister()) {
+					NasmRegister destination = (NasmRegister) nasmInst.destination;
+					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
+					if(destination.color == Nasm.REG_UNK) {
+						useSet.add(destination.val + 4);
+					}
+					else {
+						useSet.add(destination.val);
+					}
+				}
+			}
+
+			// Si le registre destination est défini
+			if (nasmInst.destDef) {
+				// Si le registre destination est un registre général
+				if (nasmInst.destination.isGeneralRegister()) {
+					NasmRegister destination = (NasmRegister) nasmInst.destination;
+					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
+					if(destination.color == Nasm.REG_UNK) {
+						defSet.add(destination.val + 4);
+					}
+					else {
+						defSet.add(destination.val);
+					}
+				}
+			}
+		}
+
+		// On ajoute les IntSet à la hashmap
+		use.put(nasmInst, useSet);
+		def.put(nasmInst, defSet);
+	}
+
+	private void createInOutSet() {
+    	// On intialize les ensembles in2 et out2 qui correspondent aux ensembles in' et ou' de l'algorithme
+		Map< NasmInst, IntSet> in2 = new HashMap< NasmInst, IntSet>();
+		Map< NasmInst, IntSet> out2 = new HashMap< NasmInst, IntSet>();
+
+		// Pour chaque instruction nasm, c'est-à-dire chaque sommet dans le graph
+		for(NasmInst nasmInst : nasm.listeInst) {
+			// On initialize les ensemble in, in2, out et out2 avec des ensembles vide
+			in.put(nasmInst, new IntSet(10));
+			in2.put(nasmInst, new IntSet(10));
+			out.put(nasmInst, new IntSet(10));
+			out2.put(nasmInst, new IntSet(10));
+		}
+
+		// La variable test utilisée pour la condition du while
+		boolean test;
+
+		// Faire
+		do {
+			// Nouvelle itération (si c'est la première itération, on passe de -1 à 0)
+			iterNum++;
+
+			// Pour chaque instruction, sommet
+			for(NasmInst s : nasm.listeInst) {
+				// in2(s) = in(s)
+				in2.replace(s, in.get(s));
+				// out2(s) = out(s)
+				out2.replace(s, in.get(s));
+
+				// in(s) = use(s) U (out(s) − def(s))
+				IntSet sIn = use.get(s).copy();
+				IntSet sOut = out.get(s).copy();
+				sOut.minus(def.get(s));
+				sIn.union(sOut);
+				in.replace(s, sIn);
+
+				// Pour chaque prédécesseur n
+				// out(n) = out(n) U in(s)
+				// On récupère le noeud dans le graph correspondant à notre instruction
+				Node sNode = fg.inst2Node.get(s);
+				// On récupère ses prédécesseurs
+				NodeList nodeList = sNode.pred();
+				// On parcours ses prédécesseurs jusqu'à les avoir tous vu
+				while(nodeList != null) {
+					// On récupère la tête de la liste des prédécesseurs
+					Node predecessorNode = nodeList.head;
+					// On récupère l'instruction liée à predecessorNode
+					NasmInst predecessorInst = fg.node2Inst.get(predecessorNode);
+
+					// out(predecessor) = out(predecessor) U in(s)
+					out.replace(predecessorInst, out.get(predecessorInst).union(in.get(s)));
+
+					// On continue de parcourir les successeurs
+					nodeList = nodeList.tail;
+				}
+			}
+
+			// Vérification de la condition du while
+			// On part du principe que le test est vrai
+			test = true;
+			// Si, pour tout s, in2(s) != in(s) et out2(s) != out(s), alors on recommence
+			for(NasmInst s : nasm.listeInst) {
+				// On créer un set pour le test
+				IntSet testSet = in2.get(s).copy();
+				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
+				// Alors les deux IntSet n'eaient pas égaux
+				if(!(testSet.minus(in.get(s)).equal(new IntSet(10)))) test = false;
+
+				// On créer un set pour le test
+				testSet = out2.get(s).copy();
+				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
+				// Alors les deux IntSet n'eaient pas égaux
+				if(!(testSet.minus(out.get(s)).equal(new IntSet(10)))) test = false;
+				if(!test) break;
+			}
+		}
+		// Tant que le test n'est pas vrai
+		while(!test);
+
+	}
     
     public void affiche(String baseFileName){
 		String fileName;
@@ -44,143 +222,6 @@ public class FgSolution implements NasmVisitor <Void> {
 			out.println("use = "+ this.use.get(nasmInst) + " def = "+ this.def.get(nasmInst) + "\tin = " + this.in.get(nasmInst) + "\t \tout = " + this.out.get(nasmInst) + "\t \t" + nasmInst);
 		}
     }
-
-	@Override
-	public Void visit(NasmAdd inst) {
-
-
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmCall inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmDiv inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJe inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJle inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJne inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmMul inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmOr inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmCmp inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmInst inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJge inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJl inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmNot inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmPop inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmRet inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmXor inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmAnd inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJg inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmJmp inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmMov inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmPush inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmSub inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmEmpty inst) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmAddress operand) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmConstant operand) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmLabel operand) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NasmRegister operand) {
-		return null;
-	}
 }
 
     

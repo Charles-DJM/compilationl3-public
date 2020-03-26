@@ -36,32 +36,6 @@ public class Fg implements NasmVisitor <Void> {
         }
     }
 
-    public void affiche(String baseFileName){
-        String fileName;
-        PrintStream out = System.out;
-
-        if (baseFileName != null){
-            try {
-            baseFileName = baseFileName;
-            fileName = baseFileName + ".fg";
-            out = new PrintStream(fileName);
-            }
-
-            catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
-            }
-    	}
-	
-	    for(NasmInst nasmInst : nasm.listeInst){
-            Node n = this.inst2Node.get(nasmInst);
-            out.print(n + " : ( ");
-            for(NodeList q=n.succ(); q!=null; q=q.tail) {
-            out.print(q.head.toString());
-            out.print(" ");
-            }
-            out.println(")\t" + nasmInst);
-        }
-    }
     // Crée un arc entre le sommet de l'instruction donnée et le sommet suivant
     private void createArcNextNode(NasmInst inst) {
         // Sommet de l'instruction donnée
@@ -95,6 +69,33 @@ public class Fg implements NasmVisitor <Void> {
 
         // On crée un arc dans le graphe
         graph.addEdge(fromNode, toNode);
+    }
+
+    public void affiche(String baseFileName){
+        String fileName;
+        PrintStream out = System.out;
+
+        if (baseFileName != null){
+            try {
+                baseFileName = baseFileName;
+                fileName = baseFileName + ".fg";
+                out = new PrintStream(fileName);
+            }
+
+            catch (IOException e) {
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
+
+        for(NasmInst nasmInst : nasm.listeInst){
+            Node n = this.inst2Node.get(nasmInst);
+            out.print(n + " : ( ");
+            for(NodeList q=n.succ(); q!=null; q=q.tail) {
+                out.print(q.head.toString());
+                out.print(" ");
+            }
+            out.println(")\t" + nasmInst);
+        }
     }
 
     // Instructions
