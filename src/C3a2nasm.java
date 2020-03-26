@@ -335,7 +335,7 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
         // Récupération de la valeur de retour
         nasm.ajouteInst(new NasmPop(null, inst.result.accept(this), "récupération de la valeur de retour"));
         // Si on avait des paramètres
-        if(function.nbArg() > 0) {
+        if(table.getFct(inst.op1.toString()).nbArgs > 0) {
             // Désallocation de l'espace occupé dans la pile par les paramètres
             nasm.ajouteInst(new NasmAdd(null, esp, new NasmConstant(function.nbArg() * 4), "désallocation des arguments"));
         }

@@ -55,7 +55,7 @@ public class FgSolution {
 				NasmAddress address = (NasmAddress) nasmInst.source;
 
 				// Si la base est un registre général
-				if (address.base.isGeneralRegister()) {
+				if (address.base != null && address.base.isGeneralRegister()) {
 					// Alors il est utilisé
 					NasmRegister source = (NasmRegister) address.base;
 					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
@@ -68,7 +68,7 @@ public class FgSolution {
 				}
 
 				// Si l'offset est un registre général
-				if (address.offset.isGeneralRegister()) {
+				if (address.offset != null && address.offset.isGeneralRegister()) {
 					// Alors il est utilisé
 					NasmRegister source = (NasmRegister) address.offset;
 					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
@@ -147,7 +147,7 @@ public class FgSolution {
 				// in2(s) = in(s)
 				in2.replace(s, in.get(s));
 				// out2(s) = out(s)
-				out2.replace(s, in.get(s));
+				out2.replace(s, out.get(s));
 
 				// in(s) = use(s) U (out(s) − def(s))
 				IntSet sIn = use.get(s).copy();
@@ -183,16 +183,16 @@ public class FgSolution {
 			// Si, pour tout s, in2(s) != in(s) et out2(s) != out(s), alors on recommence
 			for(NasmInst s : nasm.listeInst) {
 				// On créer un set pour le test
-				IntSet testSet = in2.get(s).copy();
+				IntSet testSet = in.get(s).copy();
 				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
-				// Alors les deux IntSet n'eaient pas égaux
-				if(!(testSet.minus(in.get(s)).equal(new IntSet(10)))) test = false;
+				// Alors les deux IntSet n'etaient pas égaux
+				if(!(testSet.minus(in2.get(s)).equal(new IntSet(10)))) test = false;
 
 				// On créer un set pour le test
-				testSet = out2.get(s).copy();
+				testSet = out.get(s).copy();
 				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
-				// Alors les deux IntSet n'eaient pas égaux
-				if(!(testSet.minus(out.get(s)).equal(new IntSet(10)))) test = false;
+				// Alors les deux IntSet n'etaient pas égaux
+				if(!(testSet.minus(out2.get(s)).equal(new IntSet(10)))) test = false;
 				if(!test) break;
 			}
 		}

@@ -13,10 +13,11 @@ public class Fg implements NasmVisitor <Void> {
 
     public Fg(Nasm nasm){
         this.nasm = nasm;
+
+        this.graph = new Graph();
         this.inst2Node = new HashMap< NasmInst, Node>();
         this.node2Inst = new HashMap< Node, NasmInst>();
         this.label2Inst = new HashMap< String, NasmInst>();
-        this.graph = new Graph();
 
         // Pour chaque instruction nasm, on créer un sommet dans le graph d'analyse
         for(NasmInst nasmInst : nasm.listeInst) {
@@ -36,8 +37,8 @@ public class Fg implements NasmVisitor <Void> {
         }
     }
 
-    // Crée un arc entre le sommet de l'instruction donnée et le sommet suivant
-    private void createArcNextNode(NasmInst inst) {
+    // Pour une instruction donnée, renvoie le sommet qui suit l'instruction dans le graphe
+    private Node getNodeSuccessor(NasmInst inst) {
         // Sommet de l'instruction donnée
         Node fromNode = inst2Node.get(inst);
 
@@ -54,6 +55,23 @@ public class Fg implements NasmVisitor <Void> {
         if(toNodeSuccessors != null) {
             // Lorsqu'on l'a trouvé, on sait que le sommet suivant correspond à l'instruction suivante
             toNode = toNodeSuccessors.head;
+            // On le renvoie
+            return toNode;
+        }
+
+        // L'instruction n'a pas de successeur
+        return null;
+    }
+
+    // Crée un arc entre le sommet de l'instruction donnée et le sommet suivant
+    private void createArcNextNode(NasmInst inst) {
+        // Sommet de l'instruction donnée
+        Node fromNode = inst2Node.get(inst);
+        // Sommet de l'instruction suivante
+        Node toNode = getNodeSuccessor(inst);
+
+        // Si le successeur n'est pas null, on créer un arc
+        if(toNode != null) {
             // On crée un arc dans le graphe
             graph.addEdge(fromNode, toNode);
         }
@@ -64,11 +82,17 @@ public class Fg implements NasmVisitor <Void> {
         // Sommet de l'instruction donnée
         Node fromNode = inst2Node.get(inst);
 
-        // On récupère l'instruction liée à l'étiquette
-        Node toNode = inst2Node.get(label2Inst.get(inst.address));
-
-        // On crée un arc dans le graphe
-        graph.addEdge(fromNode, toNode);
+        // Si l'étiquette existe dans le code (si l'appel n'est pas à iprintLF)
+        if(label2Inst.containsKey(inst.address.toString())) {
+            // On récupère l'instruction liée à l'étiquette
+            Node toNode = inst2Node.get(label2Inst.get(inst.address.toString()));
+            // On crée un arc dans le graphe
+            graph.addEdge(fromNode, toNode);
+        }
+        // Sinon, dans le cas d'un appel système comme iprintLF, on créer un arc avec le sommet suivant
+        else {
+            createArcNextNode(inst);
+        }
     }
 
     public void affiche(String baseFileName){
@@ -117,9 +141,8 @@ public class Fg implements NasmVisitor <Void> {
     }
 
     public Void visit(NasmCall inst){
-        // Une instruction call ne peut qu'être suivie par l'instruction d'après,
-        // c'est-à-dire le sommet suivant
-        createArcNextNode(inst);
+        // Une instruction call ne peut qu'être suivie par l'instruction pointé par l'étiquette
+        createArcLabeledNode(inst);
 
         return null;
     }

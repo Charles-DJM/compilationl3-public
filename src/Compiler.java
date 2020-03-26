@@ -78,7 +78,7 @@ public class Compiler
 
 	    System.out.println("[SOLVE FG]");
 	    FgSolution fgSolution = new FgSolution(nasm, fg);
-	    fgSolution.affiche(null);
+	    fgSolution.affiche(baseName);
 	}
 	catch(Exception e){
 	    System.out.println(e.getMessage());
