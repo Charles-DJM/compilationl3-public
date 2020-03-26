@@ -182,17 +182,8 @@ public class FgSolution {
 			test = true;
 			// Si, pour tout s, in2(s) != in(s) et out2(s) != out(s), alors on recommence
 			for(NasmInst s : nasm.listeInst) {
-				// On créer un set pour le test
-				IntSet testSet = in.get(s).copy();
-				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
-				// Alors les deux IntSet n'etaient pas égaux
-				if(!(testSet.minus(in2.get(s)).equal(new IntSet(10)))) test = false;
-
-				// On créer un set pour le test
-				testSet = out.get(s).copy();
-				// Si ce set moins le deuxième set à comparer n'est pas égal à un IntSet vide,
-				// Alors les deux IntSet n'etaient pas égaux
-				if(!(testSet.minus(out2.get(s)).equal(new IntSet(10)))) test = false;
+				if(!(in.get(s).equal(in2.get(s)))) test = false;
+				if(!(out.get(s).equal(out2.get(s)))) test = false;
 				if(!test) break;
 			}
 		}

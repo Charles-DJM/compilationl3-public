@@ -74,7 +74,6 @@ public class Compiler
 	    Fg fg = new Fg(nasm);
 	    System.out.print("[PRINT FG] ");
 	    fg.affiche(baseName);
-		//fg.graph.show(System.out);
 
 	    System.out.println("[SOLVE FG]");
 	    FgSolution fgSolution = new FgSolution(nasm, fg);
