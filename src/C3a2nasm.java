@@ -23,10 +23,10 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
         nasm.setTempCounter(c3a.getTempCounter());
 
         // Accumulator : Pour le stockage de la valeur de retour
-        NasmRegister eax = new NasmRegister(Nasm.REG_EAX);
+        NasmRegister eax = nasm.newRegister();
         eax.colorRegister(Nasm.REG_EAX);
         // Base Register : pointeur de donnée
-        NasmRegister ebx = new NasmRegister(Nasm.REG_EBX);
+        NasmRegister ebx = nasm.newRegister();
         ebx.colorRegister(Nasm.REG_EBX);
 
         // Initialisation du programme
@@ -182,7 +182,7 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
         NasmOperand op2 = inst.op2.accept(this);
         NasmOperand dest = inst.result.accept(this);
         // Acumulator : Pour les opérations arithmétiques
-        NasmRegister eax = new NasmRegister(Nasm.REG_EAX);
+        NasmRegister eax = nasm.newRegister();
         eax.colorRegister(Nasm.REG_EAX);
 
         // La première opérande doit être mise dans eax
@@ -350,7 +350,7 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
         NasmOperand label = (inst.label != null) ? inst.label.accept(this) : null;
         NasmOperand dest = inst.result.accept(this);
         // Acumulator : Pour les opérations arithmétiques
-        NasmRegister eax = new NasmRegister(Nasm.REG_EAX);
+        NasmRegister eax = nasm.newRegister();
         eax.colorRegister(Nasm.REG_EAX);
 
         // On met dans eax l'addresse où se situeront les lignes écrites
@@ -370,7 +370,7 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
     public NasmOperand visit(C3aInstWrite inst) {
         NasmOperand label = (inst.label != null) ? inst.label.accept(this) : null;
         // Acumulator : Pour les opérations arithmétiques
-        NasmRegister eax = new NasmRegister(Nasm.REG_EAX);
+        NasmRegister eax = nasm.newRegister();
         eax.colorRegister(Nasm.REG_EAX);
 
         // On déplace ce qu'on cherche à écrire dans eax

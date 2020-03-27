@@ -22,7 +22,7 @@ public class Ig {
 		this.fgs = fgs;
 		this.graph = new Graph();
 		this.nasm = fgs.nasm;
-		this.regNb = this.nasm.getTempCounter() + 4;
+		this.regNb = this.nasm.getTempCounter();
 		this.int2Node = new Node[regNb];
 		this.construction();
 		couleur = getPrecoloredTemporaries();
@@ -120,7 +120,7 @@ public class Ig {
 				// S'il n'est pas coloré
 				if(register.color == Nasm.REG_UNK) {
 					// On le colorie
-					register.colorRegister(couleur[4 + register.val]);
+					register.colorRegister(couleur[register.val]);
 				}
 			}
 
@@ -131,7 +131,7 @@ public class Ig {
 				// S'il n'est pas coloré
 				if(register.color == Nasm.REG_UNK) {
 					// On le colorie
-					register.colorRegister(couleur[4 + register.val]);
+					register.colorRegister(couleur[register.val]);
 				}
 			}
 		}
