@@ -52,7 +52,7 @@ public class Compiler
 	    System.out.println("[PRINT TS]");
 	    table.afficheTout(baseName);
 
-		System.out.print("SaEval = ");
+		System.out.print("[SA EVAL] = ");
 		new SaEval(saRoot, table);
 
 	    System.out.print("[BUILD C3A] ");
@@ -84,6 +84,9 @@ public class Compiler
 		Ig ig = new Ig(fgSolution);
 		System.out.println("[PRINT IG]");
 		ig.affiche(baseName);
+
+        System.out.println("[PRINT NASM]");
+        nasm.affiche(baseName);
 	}
 	catch(Exception e){
 	    System.out.println(e.getMessage());

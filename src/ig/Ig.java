@@ -4,6 +4,8 @@ import fg.*;
 import nasm.*;
 import util.graph.*;
 import util.intset.*;
+
+import java.awt.*;
 import java.util.*;
 import java.io.*;
 
@@ -13,7 +15,8 @@ public class Ig {
     public int regNb; // Le nombre de registres fictifs
     public Nasm nasm; // Le pré-nasm
     public Node int2Node[]; // Accéder à un sommet à partir de son identifiant
-
+	public ColorGraph colorGraph; // Le graphe colorié
+	public int couleur[];
     
     public Ig(FgSolution fgs){
 		this.fgs = fgs;
@@ -22,6 +25,11 @@ public class Ig {
 		this.regNb = this.nasm.getTempCounter() + 4;
 		this.int2Node = new Node[regNb];
 		this.construction();
+		couleur = getPrecoloredTemporaries();
+
+		colorGraph = new ColorGraph(graph, regNb, couleur);
+		couleur = colorGraph.couleur;
+		allocateRegisters();
     }
 
     // Crée le graphe d’interférence à partir du graphe d’analyse
@@ -49,8 +57,7 @@ public class Ig {
 							// On créer un arc entre i et j et un arc entre j et i
 							// Puisque les arcs n'ont pas de directions
 							// addEdge vérifie et évite les duplicats
-							graph.addEdge(int2Node[i], int2Node[j]);
-							graph.addEdge(int2Node[j], int2Node[i]);
+							graph.addNOEdge(int2Node[i], int2Node[j]);
 						}
 					}
 				}
@@ -72,13 +79,62 @@ public class Ig {
 			}
 		}
     }
-/*
-    public int[] getPrecoloredTemporaries()
-    {
-    }*/
+
+    public int[] getPrecoloredTemporaries() {
+    	int[] couleur = new int[regNb];
+
+    	// Pour chaque instruction nasm
+		for(NasmInst nasmInst : nasm.listeInst) {
+			// Si le registre destination existe et qu'il est un registre général
+			if(nasmInst.destination != null && nasmInst.destination.isGeneralRegister()) {
+				// On récupère le registre
+				NasmRegister register = ((NasmRegister) nasmInst.destination);
+				// S'il est précoloré
+				if(register.color != Nasm.REG_UNK) {
+					couleur[register.val] = register.color;
+				}
+			}
+
+			// Si le registre source existe et qu'il est un registre général
+			if(nasmInst.source != null && nasmInst.source.isGeneralRegister()) {
+				// On récupère le registre
+				NasmRegister register = ((NasmRegister) nasmInst.source);
+				// S'il est précoloré
+				if(register.color != Nasm.REG_UNK) {
+					couleur[register.val] = register.color;
+				}
+			}
+		}
+
+    	return couleur;
+    }
 
 
     public void allocateRegisters(){
+		// Pour chaque instruction nasm
+		for(NasmInst nasmInst : nasm.listeInst) {
+			// Si le registre destination existe et qu'il est un registre général
+			if(nasmInst.destination != null && nasmInst.destination.isGeneralRegister()) {
+				// On récupère le registre
+				NasmRegister register = ((NasmRegister) nasmInst.destination);
+				// S'il n'est pas coloré
+				if(register.color == Nasm.REG_UNK) {
+					// On le colorie
+					register.colorRegister(couleur[4 + register.val]);
+				}
+			}
+
+			// Si le registre source existe et qu'il est un registre général
+			if(nasmInst.source != null && nasmInst.source.isGeneralRegister()) {
+				// On récupère le registre
+				NasmRegister register = ((NasmRegister) nasmInst.source);
+				// S'il n'est pas coloré
+				if(register.color == Nasm.REG_UNK) {
+					// On le colorie
+					register.colorRegister(couleur[4 + register.val]);
+				}
+			}
+		}
     }
 
 

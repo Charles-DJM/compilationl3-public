@@ -15,6 +15,16 @@ public class IntSet{
 	return size;
     }
 
+    public int getNbElements() {
+    	int nb = 0;
+    	for(int i = 0; i < size; i++) {
+    		if(array[i]) {
+    			nb ++;
+			}
+		}
+    	return nb;
+	}
+
     public void empty(){
 	for (int i = 0; i < size; i++)
 	    array[i] = false;

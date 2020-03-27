@@ -18,8 +18,9 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
         ebp.colorRegister(Nasm.REG_EBP);
         esp.colorRegister(Nasm.REG_ESP);
 
-        // On initialize le compteur de registre à 1
-        nasm.setTempCounter(1);
+        // On initialize le compteur de registre au nombre de temporaires existante dans le code c3a
+        // Afin de pouvoir utiliser les mêmes identifiants pour les temporaires déjà existantes
+        nasm.setTempCounter(c3a.getTempCounter());
 
         // Accumulator : Pour le stockage de la valeur de retour
         NasmRegister eax = new NasmRegister(Nasm.REG_EAX);
