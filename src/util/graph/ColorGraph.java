@@ -79,12 +79,14 @@ public class ColorGraph {
 
         // Tant qu'il existe des prédecesseurs, c'est-à-dire des voisins de s non visités
         while(nodeList != null) {
-            // Si le voisin n'a pas été enlevé
-            if(!(enleves.isMember(nodeList.head.mykey))) {
+            // Si le voisin à une couleur
+            if(couleur[nodeList.head.mykey] >= 0) {
                 // On ajoute la couleur du voisin
                 neighborColor.add(couleur[nodeList.head.mykey]);
-                nodeList = nodeList.tail;
             }
+
+            // On continue de parcourir les prédecesseurs
+            nodeList = nodeList.tail;
         }
 
         return neighborColor;

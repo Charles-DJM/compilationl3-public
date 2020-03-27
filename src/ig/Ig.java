@@ -82,6 +82,10 @@ public class Ig {
 
     public int[] getPrecoloredTemporaries() {
     	int[] couleur = new int[regNb];
+    	// On initialize toutes les valeurs a -1
+		for(int i = 0; i < regNb; i++) {
+			couleur[i] = -1;
+		}
 
     	// Pour chaque instruction nasm
 		for(NasmInst nasmInst : nasm.listeInst) {

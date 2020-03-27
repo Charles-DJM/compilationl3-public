@@ -41,13 +41,8 @@ public class FgSolution {
 			// Si le registre source est utilisé et que c'est un registre général
 			if (nasmInst.srcUse && nasmInst.source.isGeneralRegister()) {
 				NasmRegister source = (NasmRegister) nasmInst.source;
-				// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
-				if(source.color == Nasm.REG_UNK) {
-					useSet.add(source.val + 4);
-				}
-				else {
-					useSet.add(source.val);
-				}
+				// On l'ajoute à l'ensemble des registres utilisés
+				useSet.add(source.val);
 			}
 
 			// Si le registre source est une adresse
@@ -58,26 +53,16 @@ public class FgSolution {
 				if (address.base != null && address.base.isGeneralRegister()) {
 					// Alors il est utilisé
 					NasmRegister source = (NasmRegister) address.base;
-					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
-					if(source.color == Nasm.REG_UNK) {
-						useSet.add(source.val + 4);
-					}
-					else {
-						useSet.add(source.val);
-					}
+					// On l'ajoute à l'ensemble des registres utilisés
+					useSet.add(source.val);
 				}
 
 				// Si l'offset est un registre général
 				if (address.offset != null && address.offset.isGeneralRegister()) {
 					// Alors il est utilisé
 					NasmRegister source = (NasmRegister) address.offset;
-					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
-					if(source.color == Nasm.REG_UNK) {
-						useSet.add(source.val + 4);
-					}
-					else {
-						useSet.add(source.val);
-					}
+					// On l'ajoute à l'ensemble des registres utilisés
+					useSet.add(source.val);
 				}
 			}
 		}
@@ -89,13 +74,8 @@ public class FgSolution {
 				// Si le registre destination est un registre général
 				if (nasmInst.destination.isGeneralRegister()) {
 					NasmRegister destination = (NasmRegister) nasmInst.destination;
-					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
-					if(destination.color == Nasm.REG_UNK) {
-						useSet.add(destination.val + 4);
-					}
-					else {
-						useSet.add(destination.val);
-					}
+					// On l'ajoute à l'ensemble des registres utilisés
+					useSet.add(destination.val);
 				}
 			}
 
@@ -104,13 +84,8 @@ public class FgSolution {
 				// Si le registre destination est un registre général
 				if (nasmInst.destination.isGeneralRegister()) {
 					NasmRegister destination = (NasmRegister) nasmInst.destination;
-					// Si le registre n'est pas EAX, EBX, ECX ou EDX, on additionne 4 à son numéro de registre
-					if(destination.color == Nasm.REG_UNK) {
-						defSet.add(destination.val + 4);
-					}
-					else {
-						defSet.add(destination.val);
-					}
+					// On l'ajoute à l'ensemble des registres définis
+					defSet.add(destination.val);
 				}
 			}
 		}
